@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/Users');
 const userController = require('../controllers/userController');
-const { register, login, updateProfile, deleteProfile } = userController;
 
-app.get('/getAllUsers', async (req, res) => {
+
+router.get('/getAllUsers', async (req, res) => {
   try {
     const users = await User.find({});
     if (users) {
@@ -17,7 +17,9 @@ app.get('/getAllUsers', async (req, res) => {
   }
 });
 
-router.post('/register', register);
-router.post('/login', login);
-router.put('/updateProfil/:id', updateProfile);
-router.delete('/deletProfile/:id', deleteProfile);
+router.post('/register', userController.register);
+router.post('/login', userController.login);
+router.put('/updateProfile/:id', userController.updateProfile);
+router.delete('/deleteProfile/:id', userController.deleteProfile);
+
+module.exports = router;

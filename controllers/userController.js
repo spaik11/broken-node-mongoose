@@ -8,44 +8,42 @@ module.exports = {
 
       //validate input
       if (
-        req.body.name.length === 0 ||
-        req.body.email.length === 0 ||
-        req.body.password.length === 0
+        name.length === 0 ||
+        email.length === 0 ||
+        password.length === 0
       ) {
         return res.json({ message: 'All fields must be completed' });
       }
       // check if user exists
-      User.findOne({ email: req.body.email }).then(user => {
+      User.findOne({ email }).then(user => {
         if (user) {
           return res.status(403).json({ message: 'User Already Exists' });
         }
         const newUser = new User();
         const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync(req.body.password, salt);
+        const hash = bcrypt.hashSync(password, salt);
 
-        newUser.name = req.body.name;
-        newUser.email = req.body.email;
+        newUser.name = name;
+        newUser.email = email;
         newUser.password = hash;
 
         newUser
           .save()
           .then(user => {
-            res.status(200).json({ message: 'User Created', user });
+            return res.status(200).json({ message: 'User Created', user });
           })
           .catch(err => {
             reject(err);
           });
       });
-      resolve();
     });
   },
 
   login: (req, res) => {
     return new Promise((resolve, reject) => {
-      findOne({ email: req.body.email })
+      User.findOne({ email: req.body.email })
         .then(user => {
-          bcrypt
-            .compare(req.body.password, user.password)
+            bcrypt.compare(req.body.password, user.password)
             .then(user => {
               return res.send(
                 user === true
@@ -66,8 +64,8 @@ module.exports = {
         .then(user => {
           const { name, email } = req.body;
 
-          user.name = req.body.name ? req.body.name : user.name;
-          user.email = req.body.email ? req.body.email : user.email;
+          user.name = name ? name : user.name;
+          user.email = email ? email : user.email;
 
           user
             .save()
@@ -81,7 +79,6 @@ module.exports = {
   },
 
   deleteProfile: (req, res) => {
-    try {
       return new Promise((resolve, reject) => {
         User.findByIdAndDelete({ _id: req.params.id })
           .then(user => {
@@ -89,8 +86,5 @@ module.exports = {
           })
           .catch(err => res.status(400).json({ message: 'No User To Delete' }));
       });
-    } catch (error) {
-      return res.status(500).json({ message: 'Server Error' });
-    }
   }
 };
